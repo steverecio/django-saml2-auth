@@ -15,7 +15,7 @@ from pkg_resources import parse_version
 from django.conf import settings
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login, logout, get_user_model
+from django.contrib.auth import logout, get_user_model
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.template import TemplateDoesNotExist
@@ -23,6 +23,7 @@ from django.http import HttpResponseRedirect
 from django.utils.http import is_safe_url
 
 from rest_auth.utils import jwt_encode
+from allauth.account.adapter import get_adapter
 
 
 # default User or custom User. Now both will work.
@@ -180,7 +181,7 @@ def acs(r):
     is_new_user = False
 
     try:
-        target_user = User.objects.get(username=user_name)
+        target_user = User.objects.get(email=user_email)
         if settings.SAML2_AUTH.get('TRIGGER', {}).get('BEFORE_LOGIN', None):
             import_string(settings.SAML2_AUTH['TRIGGER']['BEFORE_LOGIN'])(user_identity)
     except User.DoesNotExist:
@@ -197,7 +198,7 @@ def acs(r):
 
     if target_user.is_active:
         target_user.backend = 'django.contrib.auth.backends.ModelBackend'
-        login(r, target_user)
+        get_adapter(r).login(r, target_user)
     else:
         return HttpResponseRedirect(get_reverse([denied, 'denied', 'django_saml2_auth:denied']))
 
