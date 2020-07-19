@@ -22,7 +22,7 @@ from django.template import TemplateDoesNotExist
 from django.http import HttpResponseRedirect
 from django.utils.http import is_safe_url
 
-from rest_auth.utils import jwt_encode
+from dj_rest_auth.utils import jwt_encode
 from allauth.account.adapter import get_adapter
 
 
